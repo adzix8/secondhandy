@@ -298,7 +298,7 @@ export default {
     @media #{$tablet-min} and #{$tablet} {
       width: 40vw;
     }
-    @media #{$tablet} and #{$phone-max-height} {
+    @media #{$tablet} and (orientation: landscape) {
       width: 60vw;
     }
     @media #{$desktop} {
