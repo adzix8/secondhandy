@@ -30,11 +30,12 @@
               </li>
             </ul>
             <div class="container-buttons">
-              <a href="">
-                <button type="button" class="btn btn--primary">
+              <router-link to="/dodaj-secondhand">
+                <button type="button" class="btn btn--primary"
+                        @click="scrollAndCloseNavigation">
                   <i class="fas fa-map-marker-alt margin-right"></i>Dodaj sklep
                 </button>
-              </a>
+              </router-link>
               <router-link to="/logowanie">
                 <button type="button" class="btn btn--secondary"
                         @click="scrollAndCloseNavigation">

@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Navigation from '@/components/Navigation.vue';
+import Navigation from './components/Navigation.vue';
 
 export default {
   name: 'App',
@@ -91,6 +91,56 @@ a {
     background-color: $color-primary-light;
     color: white;
   }
+}
+.form__title {
+  font-size: 1.5rem;
+  text-align: center;
+}
+.form__input {
+  color: #000000;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid $color-secondary;
+  font-size: 1rem;
+  width: 100%;
+  padding: .5rem 0 .25rem;
+  margin-top: .5rem;
+  -webkit-transition: border-bottom-color .4s;
+  -moz-transition: border-bottom-color .4s;
+  -ms-transition: border-bottom-color .4s;
+  -o-transition: border-bottom-color .4s;
+  transition: border-bottom-color .4s;
+  &:focus {
+    outline: none;
+    border-bottom-color: $color-primary;
+  }
+  &.form__valid {
+    border-bottom-color: $color-primary;
+  }
+  &:focus ~ .form__label, &.form__valid ~ .form__label, &.form__invalid ~ .form__label {
+    color: $color-primary;
+    font-size: .75rem;
+    -webkit-transform: translateY(-1rem);
+    -moz-transform: translateY(-1rem);
+    -ms-transform: translateY(-1rem);
+    -o-transform: translateY(-1rem);
+    transform: translateY(-1rem);
+  }
+}
+.form__label {
+  font-size: 1rem;
+  position: absolute;
+  top: .85rem;
+  left: 0;
+  -webkit-transition: transform .4s, font-size .4s, color .4s;
+  -moz-transition: transform .4s, font-size .4s, color .4s;
+  -ms-transition: transform .4s, font-size .4s, color .4s;
+  -o-transition: transform .4s, font-size .4s, color .4s;
+  transition: transform .4s, font-size .4s, color .4s;
+}
+.form__input--error {
+  color: #ff0000;
+  font-size: .75rem;
 }
 
 /* First bg - content section */
