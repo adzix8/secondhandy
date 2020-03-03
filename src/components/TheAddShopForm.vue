@@ -356,14 +356,7 @@
               </div>
             </div>
           </div>
-          <h3 class="group__title">Dodaj zdjęcie</h3>
-          <div class="form-group file-area">
-            <label class="upload__label" for="image">Images</label>
-            <input type="file" name="image" id="image" @change="fileSelected">
-            <div class="file-dummy">
-              <div class="default">{{ title }}</div>
-            </div>
-          </div>
+          <the-upload-photo></the-upload-photo>
         </div>
       </div>
       <div class="row mt-3">
@@ -382,11 +375,15 @@
 import {
   required, minLength, maxLength, numeric,
 } from 'vuelidate/lib/validators';
+import TheUploadPhoto from './TheUploadPhoto.vue';
 
 const API = 'https://secondhandy-e3052.firebaseio.com';
 
 export default {
   name: 'TheAddShopForm',
+  components: {
+    TheUploadPhoto,
+  },
   data() {
     return {
       name: '',
@@ -398,10 +395,6 @@ export default {
       stock: [],
       output: '',
     };
-  },
-  props: {
-    selectedCallback: Function,
-    title: String,
   },
   validations: {
     name: {
@@ -424,14 +417,13 @@ export default {
     },
   },
   methods: {
-    add(e) {
-      e.preventDefault();
+    add(event) {
+      event.preventDefault();
       const currentObj = this;
       const config = {
         headers: {
           'Content-Type': 'application/json',
           // Authorization: '40fb22c9-28f1-4219-bcde-24df755e575a',
-          'Access-Control-Allow-Origin': 'http://localhost:8080',
         },
       };
       this.axios.post(`${API}/locals.json`, {
@@ -450,23 +442,6 @@ export default {
           currentObj.output = error;
         });
     },
-    fileSelected(e) {
-      if (this.selectedCallback) {
-        if (e.target.files[0]) {
-          this.selectedCallback(e.target.files[0]);
-        } else {
-          this.selectedCallback(null);
-        }
-      }
-    },
-  },
-  computed: {
-    stockToInt() {
-      for (let i = 0; i < this.stock.length; i + 1) {
-        parseInt(this.stock[i].value, 10);
-      }
-      return this.stock;
-    },
   },
 };
 </script>
@@ -474,10 +449,6 @@ export default {
 <style lang="scss" scoped>
 @import "../scss/vars";
 
-.group__title {
-  font-size: 1.25rem;
-  margin-top: .75rem;
-}
 .group__name {
   width: 100%;
   @media #{$tablet-min} {
@@ -499,48 +470,5 @@ export default {
 }
 .custom-checkbox, .custom-radio {
   margin-right: .75rem;
-}
-// TODO do zrobienia zmiana poniższego cssa na scss
-// do tego wyedytować wygląd input file
-.file-area {
-  width: 100%;
-  position: relative;
-  input[type=file] {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  .file-dummy {
-    width: 100%;
-    padding: 30px;
-    background: $color-primary-light;
-    border: 2px dashed $color-primary;
-    text-align: center;
-    transition: background 0.3s ease-in-out;
-  }
-
-  &:hover .file-dummy {
-    background: rgba(255,255,255,0.1);
-  }
-
-  input[type=file]:focus + .file-dummy {
-    outline: 2px solid rgba(255,255,255,0.5);
-    outline: -webkit-focus-ring-color auto 5px;
-  }
-}
-.upload__label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
 }
 </style>

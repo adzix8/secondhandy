@@ -211,4 +211,8 @@ a {
 .custom-control-input:focus ~ .custom-control-label::before {
   box-shadow: 0 0 0 0.2rem $color-primary-light;
 }
+.group__title {
+  font-size: 1.25rem;
+  margin-top: .75rem;
+}
 </style>
