@@ -147,6 +147,10 @@ a {
 .first-bg {
   background: url("assets/bg-first.svg") white no-repeat fixed;
   background-size: cover;
+  @media #{$desktop} and (orientation: landscape){
+    background-position: right 0 top 64px;
+    background-size: auto;
+  }
 }
 
 /*Content*/

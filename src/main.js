@@ -6,6 +6,8 @@ import App from './App.vue';
 import './registerServiceWorker';
 import router from './router';
 
+axios.defaults.baseURL = 'https://secondhandy-e3052.firebaseio.com';
+
 Vue.use(VueAxios, axios);
 Vue.use(Vuelidate);
 
