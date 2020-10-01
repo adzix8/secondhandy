@@ -42,11 +42,11 @@
                   <i class="fas fa-sign-in-alt margin-right"></i>Logowanie
                 </button>
               </router-link>
-              <a href="">
+              <router-link to="/rejestracja">
                 <button type="button" class="btn btn--secondary">
                   <i class="fas fa-user-plus margin-right"></i>Rejestracja
                 </button>
-              </a>
+              </router-link>
             </div>
           </div>
         </nav>

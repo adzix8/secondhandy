@@ -54,8 +54,8 @@
                       v-if="!$v.city.$dirty ? null : !$v.city.required">
                   Pole jest wymagane.
                 </span>
-                    <span class="form__input--error"
-                          v-if="!$v.city.minLength">
+                <span class="form__input--error"
+                      v-if="!$v.city.minLength">
                   Miasto musi składać się z minimum 3 znaków.
                 </span>
               </div>
@@ -1016,7 +1016,7 @@ export default {
         })
           .then((response) => {
             currentObj.output = response.data;
-            console.log(response);
+            // console.log(response);
           })
           .catch((error) => {
             currentObj.output = error;
@@ -1030,7 +1030,7 @@ export default {
         this.imageUrl = fileReader.result;
       });
       fileReader.readAsDataURL(file);
-      console.log(file);
+      // console.log(file);
       this.hasUpload = true;
     },
     removePhoto() {
@@ -1101,6 +1101,10 @@ export default {
       flex-wrap: nowrap;
     }
   }
+}
+.group__box--priceList {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 .custom-checkbox, .custom-radio {
   margin-right: .75rem;
