@@ -42,7 +42,6 @@
 
 <script>
 import { required, minLength } from 'vuelidate/lib/validators';
-import authAxios from '../auth-axios';
 
 export default {
   name: 'Register',
@@ -62,19 +61,14 @@ export default {
     },
   },
   methods: {
-    onSubmit(event) {
+    async onSubmit(event) {
       event.preventDefault();
-      authAxios.post('accounts:signUp?key=AIzaSyDNDLaJY_j7ZdYpQIhNWZ-xIsnneb0wd7g', {
+      await this.$store.dispatch('register', {
         email: this.email,
         password: this.password,
         returnSecureToken: true,
-      })
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      });
+      this.$router.push({ name: 'add-shop' });
     },
   },
 };

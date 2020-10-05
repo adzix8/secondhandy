@@ -1,8 +1,11 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
+import store from '../store';
 
 Vue.use(VueRouter);
+
+store.dispatch('autoLogin');
 
 const routes = [
   {
@@ -13,7 +16,7 @@ const routes = [
   {
     path: '/szukaj',
     name: 'search',
-    component: () => import('../views/Search.vue'),
+    component: () => import('../views/Search'),
   },
   {
     path: '/rejestracja',
@@ -24,11 +27,25 @@ const routes = [
     path: '/logowanie',
     name: 'login',
     component: () => import('../views/Login'),
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('isAuth')) {
+        next({ name: from.name });
+      } else {
+        next();
+      }
+    },
   },
   {
     path: '/dodaj-secondhand',
     name: 'add-shop',
     component: () => import('../views/AddShop'),
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('isAuth')) {
+        next();
+      } else {
+        next({ name: 'login' });
+      }
+    },
   },
 ];
 

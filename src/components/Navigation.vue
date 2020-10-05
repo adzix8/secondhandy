@@ -36,17 +36,24 @@
                   <i class="fas fa-map-marker-alt margin-right"></i>Dodaj sklep
                 </button>
               </router-link>
-              <router-link to="/logowanie">
+              <router-link to="/logowanie" v-if="!auth">
                 <button type="button" class="btn btn--secondary"
                         @click="scrollAndCloseNavigation">
                   <i class="fas fa-sign-in-alt margin-right"></i>Logowanie
                 </button>
               </router-link>
               <router-link to="/rejestracja">
-                <button type="button" class="btn btn--secondary">
+                <button type="button" class="btn btn--secondary"
+                        @click="scrollAndCloseNavigation">
                   <i class="fas fa-user-plus margin-right"></i>Rejestracja
                 </button>
               </router-link>
+              <button type="button"
+                      class="btn btn--secondary"
+                      v-if="auth"
+                      @click="logout">
+                <i class="fas fa-sign-out-alt margin-right"></i>Wyloguj
+              </button>
             </div>
           </div>
         </nav>
@@ -69,7 +76,7 @@ export default {
   },
   methods: {
     toggleNavigation() {
-      console.log('Open navigation'); // to delete
+      // console.log('Open navigation'); // to delete
       if (this.navOpen) {
         this.navOpen = false;
         return this.navOpen;
@@ -78,7 +85,7 @@ export default {
       return this.navOpen;
     },
     showShadowOnScroll() {
-      console.log('Scroll'); // to delete
+      // console.log('Scroll'); // to delete
       if (window.pageYOffset > 1) {
         this.showShadow = true;
         return this.showShadow;
@@ -92,6 +99,15 @@ export default {
     scrollAndCloseNavigation() {
       this.toggleNavigation();
       this.scrollToTop();
+    },
+    logout() {
+      this.$store.dispatch('logout');
+      this.scrollAndCloseNavigation();
+    },
+  },
+  computed: {
+    auth() {
+      return this.$store.getters.isAuth;
     },
   },
   created() {

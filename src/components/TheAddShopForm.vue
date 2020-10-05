@@ -791,7 +791,9 @@
         </div>
       </div>
     </form>
-    <pre>{{ output }}</pre>
+    <div class="alert" v-if="message">
+      {{ message }}
+    </div>
   </div>
 </template>
 
@@ -877,6 +879,7 @@ export default {
       image: null,
       imageUrl: '',
       hasUpload: false,
+      message: null,
     };
   },
   validations: {
@@ -998,13 +1001,12 @@ export default {
     },
   },
   methods: {
-    add(event) {
+    async add(event) {
       event.preventDefault();
       this.$v.$touch();
-      const currentObj = this;
       this.setNullForMethodPrice();
       if (!this.$v.$invalid) {
-        this.axios.post('/locals.json', {
+        await this.$store.dispatch('addShop', {
           name: this.name,
           address: this.address,
           city: this.city,
@@ -1013,14 +1015,8 @@ export default {
           cardAllowed: this.cardAllowed,
           stock: this.stock,
           days: this.days,
-        })
-          .then((response) => {
-            currentObj.output = response.data;
-            // console.log(response);
-          })
-          .catch((error) => {
-            currentObj.output = error;
-          });
+        });
+        this.message = 'You add the shop to database';
       }
     },
     fileSelected(event) {
