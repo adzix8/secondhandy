@@ -25,7 +25,7 @@
               </li>
               <li class="nav-item">
                 <router-link to="/szukaj" class="nav-link">
-                  <span>Szukaj</span>
+                  <span @click="scrollAndCloseNavigation">Szukaj</span>
                 </router-link>
               </li>
             </ul>
@@ -334,6 +334,12 @@ export default {
 
     &:hover {
       color: $color-primary;
+    }
+
+    span {
+      @media #{$tablet} {
+        display: block;
+      }
     }
 
     @media #{$tablet} {
