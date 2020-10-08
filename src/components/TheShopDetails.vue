@@ -2,13 +2,15 @@
   <div class="search__item">
     <img class="item__img" src="https://via.placeholder.com/500x500.png?text=Photo" alt="">
     <div class="item__content">
-      <div class="item__col--left">
-        <h2 class="item__title">{{name}}</h2>
-        <span class="item__address">{{ fullAddress }}</span>
-      </div>
-      <div class="item__col--right">
-        <span class="item__open">Otwarte</span>
-        <span class="item__location"><i class="fas fa-location-arrow"></i>1.8 km</span>
+      <div class="item__row">
+        <div class="item__col--left">
+          <h2 class="item__title">{{name}}</h2>
+          <span class="item__address">{{ fullAddress }}</span>
+        </div>
+        <div class="item__col--right">
+          <span class="item__open">Otwarte</span>
+          <span class="item__location"><i class="fas fa-location-arrow"></i>1.8 km</span>
+        </div>
       </div>
       <ul class="item__list-1">
         <li><i class="fas fa-cart-arrow-down"></i><span>za 3dni</span></li>
@@ -30,7 +32,7 @@
 
 <script>
 export default {
-  name: 'Shop',
+  name: 'TheShopDetails',
   props: {
     name: {
       type: String,
@@ -61,8 +63,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import "../scss/vars";
-
   .search__list {
     background-color: #fbbd72;
   }
@@ -83,73 +83,47 @@ export default {
   }
 
   .item__img {
-    width: 40%;
-    @media #{$desktop} {
-        width: 20%;
-    }
-  }
+    width: 40%; }
+  @media (min-width: 992px) {
+    .item__img {
+      width: 20%; } }
 
   .item__content {
     width: 60%;
-    padding: .5rem;
-    display: grid;
-    grid-template-columns: 4fr 2fr;
-    grid-template-rows: .75fr .25fr .25fr;
-    grid-template-areas:
-            'title location'
-            'list-1 list-1'
-            'list-2 list-2';
-    grid-gap: .25rem;
-
-    @media #{$desktop} {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: .5rem; }
+  @media (min-width: 992px) {
+    .item__content {
       width: 80%;
-      grid-template-columns: 4fr 2fr 2fr 2fr;
-      grid-template-rows: none;
-      grid-template-areas:
-              'title location list-1 list-2';
-      grid-gap: 1rem;
-    }
-  }
+      flex-direction: row;
+      flex-wrap: nowrap; } }
 
   .item__title {
     font-size: 1rem;
-    line-height: 1.15rem;
-    height: 2.3rem;
-    margin-bottom: .25rem;
-  }
+    margin-bottom: .5rem; }
 
-  .item__address, .item__location, .item__open, .item__close {
-    display: block;
+  .item__address, .item__location {
     font-size: .75rem;
-    line-height: .9rem;
-  }
+    line-height: 1.2rem; }
 
   .item__location {
     line-height: 1rem;
     padding-left: .5rem;
-    text-align: right;
-
-    @media #{$desktop} {
-      text-align: center;
-    }
-
-    i {
-      margin: .25rem;
-    }
-  }
+    text-align: right; }
+  .item__location i {
+    margin: .25rem; }
 
   .item__open, .item__close {
     color: #228b22;
-    text-align: right;
-
-    @media #{$desktop} {
-      text-align: center;
-    }
-  }
+    font-size: .8rem;
+    text-align: right; }
 
   .item__close {
-    color: #ff0000;
-  }
+    color: #ff0000; }
 
   .item__x {
     color: #000000;
@@ -158,47 +132,33 @@ export default {
     position: absolute;
     top: -1.25rem;
     right: 0;
-    cursor: pointer;
-  }
+    cursor: pointer; }
 
   .item__list-1, .item__list-2 {
     color: #f68903;
     padding-left: 0;
     margin: 0;
-    list-style: none;
+    list-style: none; }
+  .item__list-1 li, .item__list-2 li {
+    margin-right: .25rem;
+    display: inline-flex; }
+  .item__list-1 li span, .item__list-2 li span {
+    font-size: .75rem;
+    margin-left: .25rem; }
+  @media (min-width: 992px) {
+    .item__list-1, .item__list-2 {
+      margin-left: 1rem;
+      text-align: right; } }
+  .item__row {
+    margin-bottom: .5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; }
 
-    li {
-      margin-right: .25rem;
-      display: inline-block;
-
-      span {
-        font-size: .75rem;
-        margin-left: .25rem;
-      }
-    }
-  }
-
-  .item__list-1 {
-    grid-area: list-1;
-    justify-self: center;
-
-    @media #{$desktop} {
-      li {
-        display: block;
-      }
-    }
-  }
-
-  .item__list-2 {
-    grid-area: list-2;
-    justify-self: center;
-  }
-
-  .item__col--left {
-    grid-area: title;
-  }
+  .item__col--left, .item__col--right {
+    display: flex;
+    flex-direction: column; }
 
   .item__col--right {
-    grid-area: location;
-  }
+    justify-content: right; }
 </style>

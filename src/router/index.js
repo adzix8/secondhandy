@@ -47,6 +47,15 @@ const routes = [
       }
     },
   },
+  {
+    path: '/sklep/:id',
+    name: 'shop',
+    component: () => import('../views/Shop'),
+    beforeEnter: (to, from, next) => {
+      window.scrollTo(0, 0);
+      next();
+    },
+  },
 ];
 
 const router = new VueRouter({
