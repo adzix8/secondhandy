@@ -4,10 +4,9 @@
       <div class="col-12 d-flex justify-content-center">
         <the-spinner v-if="loading"/>
       </div>
-      <div class="col-lg-2 my-3" v-if="!loading">
-        <button type="button" class="btn btn--primary" @click="back">
-          <i class="fas fa-chevron-left margin-right"></i>
-          Wstecz
+      <div class="col-lg-2 btn__wrapper" v-if="!loading">
+        <button type="button" class="btn btn--back" @click="back">
+          <i class="fas fa-chevron-left fa-2x margin-right"></i>
         </button>
       </div>
       <div class="col-lg-8" v-if="!loading && shop">
@@ -17,7 +16,7 @@
                             :city="shop.city"
                             :card-allowed="shop.cardAllowed"
                             :stock="shop.stock"
-                            :days="shop.days"/>
+                            :days="shop.days" />
         </div>
       </div>
     </div>
@@ -62,6 +61,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  @import '../scss/vars';
+
+  .btn__wrapper {
+    margin-top: 1rem;
+  }
+
   .btn--back {
+    text-align: left;
+    margin-bottom: 0;
+    @media #{$desktop} {
+      text-align: right;
+    }
   }
 </style>

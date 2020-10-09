@@ -26,14 +26,14 @@
             <div class="col-12"
                  v-else
                  v-for="(shop) in filterShops"
-                 :key="shop.id"
-                 @click="showDetails(shop.id)">
+                 :key="shop.id">
               <Shop :name="shop.name"
                     :address="shop.address"
                     :city="shop.city"
                     :card-allowed="shop.cardAllowed"
                     :stock="shop.stock"
-                    :shop-node="shop.id"/>
+                    :shop-node="shop.id"
+                    @click="showDetails(shop.id)" />
             </div>
           </div>
         </div>
@@ -96,7 +96,6 @@ export default {
         shops = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
       }
 
-      console.log('Second', shops);
       return shops;
     },
     /* eslint-enable */

@@ -1,5 +1,5 @@
 <template>
-  <div class="search__item">
+  <div class="search__item" @click="show">
     <img class="item__img" src="https://via.placeholder.com/500x500.png?text=Photo" alt="">
     <div class="item__content">
       <div class="item__col--left">
@@ -58,6 +58,11 @@ export default {
   computed: {
     fullAddress() {
       return `${this.address}, ${this.city}`;
+    },
+  },
+  methods: {
+    show(event) {
+      this.$emit('click', event);
     },
   },
 };
