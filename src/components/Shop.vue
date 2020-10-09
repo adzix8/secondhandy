@@ -51,6 +51,9 @@ export default {
       type: Array,
       default: () => [],
     },
+    shopNode: {
+      type: String,
+    },
   },
   computed: {
     fullAddress() {
@@ -62,10 +65,6 @@ export default {
 
 <style lang="scss" scoped>
   @import "../scss/vars";
-
-  .search__list {
-    background-color: #fbbd72;
-  }
 
   .search__item {
     background-color: white;

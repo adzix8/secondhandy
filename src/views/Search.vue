@@ -25,14 +25,15 @@
             <the-spinner v-if="loading"/>
             <div class="col-12"
                  v-else
-                 v-for="(shop, nodeId) in filterShops"
-                 :key="nodeId"
-                 @click="showDetails(nodeId)">
+                 v-for="(shop) in filterShops"
+                 :key="shop.id"
+                 @click="showDetails(shop.id)">
               <Shop :name="shop.name"
                     :address="shop.address"
                     :city="shop.city"
                     :card-allowed="shop.cardAllowed"
-                    :stock="shop.stock"/>
+                    :stock="shop.stock"
+                    :shop-node="shop.id"/>
             </div>
           </div>
         </div>
@@ -42,7 +43,6 @@
 </template>
 
 <script>
-// import debounce from 'lodash.debounce';
 import Shop from '../components/Shop.vue';
 import TheSpinner from '../components/TheSpinner.vue';
 
@@ -73,11 +73,17 @@ export default {
   computed: {
     /* eslint-disable*/
     filterShops: function() {
-      if (!this.searchValue) {
-        return this.shops;
+      const keys = Object.keys(this.shops);
+      let shops = Object.values(this.shops);
+      shops.forEach((value,index) => {
+        shops[index]['id'] = keys[index];
+      });
+
+      if (this.searchValue === '') {
+        console.log('First', shops);
+        return shops;
       }
 
-      let shops = Object.values(this.shops);
       const cities = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
       const names = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
 
@@ -90,7 +96,7 @@ export default {
         shops = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
       }
 
-      console.log(shops);
+      console.log('Second', shops);
       return shops;
     },
     /* eslint-enable */
@@ -113,7 +119,6 @@ export default {
     },
     /* eslint-enable */
     showDetails(id) {
-      console.log('Click');
       this.$router.push(`/sklep/${id}`);
     },
   },
