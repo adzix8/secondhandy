@@ -84,6 +84,14 @@ export default {
     flex-wrap: wrap;
     justify-content: space-between;
     cursor: pointer;
+    opacity: 0;
+    -webkit-transform: translateY(1rem);
+    -moz-transform: translateY(1rem);
+    -ms-transform: translateY(1rem);
+    -o-transform: translateY(1rem);
+    transform: translateY(1rem);
+    animation: showItem .4s ease-in-out;
+    animation-fill-mode: forwards;
   }
 
   .item__img {
@@ -204,5 +212,24 @@ export default {
 
   .item__col--right {
     grid-area: location;
+  }
+
+  @keyframes showItem {
+    from {
+      opacity: 0;
+      -webkit-transform: translateY(1rem);
+      -moz-transform: translateY(1rem);
+      -ms-transform: translateY(1rem);
+      -o-transform: translateY(1rem);
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      -webkit-transform: translateY(0);
+      -moz-transform: translateY(0);
+      -ms-transform: translateY(0);
+      -o-transform: translateY(0);
+      transform: translateY(0);
+    }
   }
 </style>

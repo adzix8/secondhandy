@@ -3,12 +3,21 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2 col-12 justify-center-section">
-          <form class="form__height--small" @submit="onSubmit">
+          <form @submit="onSubmit">
+            <div class="form-group mb-2">
+              <select class="form-control"
+                      id="cities"
+                      placeholder="Wybierz miasto"
+                      @change="changeCity">
+                <option value="">Wszystkie miasta</option>
+                <option v-for="city in cities" :key="city.id">{{ city }}</option>
+              </select>
+            </div>
             <div class="form-group">
                 <i class="fas fa-search fa-right"></i>
                 <input type="text"
                        class="form-control control--primary search-control"
-                       placeholder="Podaj nazwę miasta"
+                       placeholder="Wpisz nazwę secondhandu"
                        v-model="searchValue">
             </div>
           </form>
@@ -57,6 +66,8 @@ export default {
       loading: true,
       auth: '',
       shops: [],
+      cities: [],
+      city: '',
       searchValue: '',
     };
   },
@@ -65,6 +76,7 @@ export default {
       const { data } = await this.axios.get('locals.json');
       this.shops = data;
       this.loading = false;
+      this.getCities(this.shops);
     } catch (error) {
       console.log(error);
     }
@@ -79,22 +91,19 @@ export default {
         shops[index]['id'] = keys[index];
       });
 
-      if (this.searchValue === '') {
-        console.log('First', shops);
+      if (this.searchValue === '' && this.city === '') {
+        // console.log('First', shops);
         return shops;
       }
 
-      const cities = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-      const names = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
+      shops = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.city.toString().toLowerCase()));
+      console.log(shops);
+      shops = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
 
-      if (cities.length > 0 && names.length > 0) {
-        shops = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-        shops = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-      } else if (cities.length > 0) {
-        shops = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-      } else {
-        shops = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-      }
+      this.loading = true;
+      window.setTimeout(() => {
+        this.loading = false;
+      }, 100);
 
       return shops;
     },
@@ -119,6 +128,17 @@ export default {
     /* eslint-enable */
     showDetails(id) {
       this.$router.push(`/sklep/${id}`);
+    },
+    getCities(shops) {
+      const shopsList = (Object.values(shops));
+      for (let i = 0; i < shopsList.length; i += 1) {
+        if (!this.cities.includes(shopsList[i].city)) {
+          this.cities.push(shopsList[i].city);
+        }
+      }
+    },
+    changeCity(event) {
+      this.city = event.target.value;
     },
   },
 };
