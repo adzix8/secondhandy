@@ -1,7 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
+/* eslint-disable */
 import store from '../store';
+/* eslint-enable */
 
 Vue.use(VueRouter);
 
@@ -65,3 +67,16 @@ const router = new VueRouter({
 });
 
 export default router;
+
+if (store.getters.isAuth) {
+  const expirationDate = new Date(localStorage.getItem('expires'));
+  const now = new Date();
+
+  if (expirationDate <= now) {
+    store.dispatch('logout');
+  } else {
+    setTimeout(() => {
+      store.dispatch('logout');
+    }, expirationDate.getTime() - now.getTime());
+  }
+}

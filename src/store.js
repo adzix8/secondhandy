@@ -2,6 +2,9 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
 import authAxios from './auth-axios';
+/* eslint-disable */
+import router from './router/index';
+/* eslint-enable */
 
 Vue.use(Vuex);
 
@@ -37,7 +40,7 @@ export default new Vuex.Store({
         console.log(error);
       }
     },
-    async login({ commit }, payload) {
+    async login({ commit, dispatch }, payload) {
       try {
         const response = await authAxios.post(`accounts:signInWithPassword?key=${apiKey}`, payload);
         commit('auth', {
@@ -51,6 +54,10 @@ export default new Vuex.Store({
         localStorage.setItem('userId', response.data.localId);
         localStorage.setItem('expires', endDate);
         localStorage.setItem('isAuth', isAuth);
+
+        setTimeout(() => {
+          dispatch('logout');
+        }, response.data.expiresIn * 1000);
       } catch (error) {
         console.log(error);
       }
@@ -61,15 +68,15 @@ export default new Vuex.Store({
       localStorage.removeItem('userId');
       localStorage.removeItem('expires');
       localStorage.removeItem('isAuth');
-      // this.$router.push({ name: 'home' });
+      router.push({ name: 'home' });
     },
-    autoLogin({ commit }) {
+    autoLogin({ commit, dispatch }) {
       const token = localStorage.getItem('token');
       const userId = localStorage.getItem('userId');
-      if (!token && !userId) {
+      if (!token || !userId) {
         return;
       }
-      const expirationDate = localStorage.getItem('expires');
+      const expirationDate = new Date(localStorage.getItem('expires'));
       const now = new Date();
       if (now >= expirationDate) {
         localStorage.removeItem('token');
@@ -83,6 +90,10 @@ export default new Vuex.Store({
         token,
         userId,
       });
+      // console.log('Pozostało sekund', expirationDate.getTime() - now.getTime());
+      setTimeout(() => {
+        dispatch('logout');
+      }, (expirationDate.getTime() - now.getTime()));
     },
     async addShop({ state }, payload) {
       if (state.userId === null) {
