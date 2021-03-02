@@ -14,9 +14,16 @@ export default new Vuex.Store({
   state: {
     token: null,
     userId: null,
+    shops: [],
+    cities: [],
+    city: '',
+    searchValue: '',
   },
   getters: {
     isAuth: state => state.token !== null,
+    shops: state => state.shops,
+    cities: state => state.cities,
+    searchValue: state => state.searchValue,
   },
   mutations: {
     auth(state, payload) {
@@ -26,6 +33,22 @@ export default new Vuex.Store({
     clearAuth(state) {
       state.token = null;
       state.userId = null;
+    },
+    changeSearchValue(state, value) {
+      state.searchValue = value;
+    },
+    filterByShopName(state) {
+      /* eslint-disable */
+      state.shops = state.shops.filter(shop => shop.name.toString().toLowerCase().includes(state.searchValue.toString().toLowerCase()));
+      /* eslint-enable */
+    },
+    changeCity(state, city) {
+      state.city = city;
+    },
+    filterByCity(state) {
+      /* eslint-disable */
+      state.shops = state.shops.filter(shop => shop.city.toString().toLowerCase().includes(state.city.toString().toLowerCase()));
+      /* eslint-enable */
     },
   },
   actions: {
@@ -105,6 +128,38 @@ export default new Vuex.Store({
       } catch (error) {
         console.log(error);
       }
+    },
+    async getShops({ state, commit }) {
+      try {
+        const { data } = await axios.get('locals.json');
+        const keys = Object.keys(data);
+        const shops = Object.values(data);
+        shops.forEach((value, index) => {
+          shops[index].id = keys[index];
+        });
+        state.shops = shops;
+
+        if (state.searchValue === '' && state.city === '') {
+          return state.shops;
+        }
+
+        commit('filterByShopName');
+        commit('filterByCity');
+      } catch (error) {
+        console.log(error);
+      }
+      return state.shops;
+    },
+    getCities({ state }) {
+      const cities = [];
+      const shopsList = (Object.values(state.shops));
+      for (let i = 0; i < shopsList.length; i += 1) {
+        if (!cities.includes(shopsList[i].city)) {
+          cities.push(shopsList[i].city);
+        }
+      }
+      state.cities = cities;
+      return state.cities;
     },
   },
 });

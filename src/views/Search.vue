@@ -8,9 +8,9 @@
               <select class="form-control"
                       id="cities"
                       placeholder="Wybierz miasto"
-                      @change="changeCity">
+                      @input="changeCity">
                 <option value="">Wszystkie miasta</option>
-                <option v-for="city in cities" :key="city.id">{{ city }}</option>
+                <option v-for="city in getCities" :key="city.id">{{ city }}</option>
               </select>
             </div>
             <div class="form-group">
@@ -26,7 +26,7 @@
     </div>
     <div class="container">
       <div class="row">
-        <div class="col-12" v-if="filterShops.length === 0 && !loading">
+        <div class="col-12" v-if="getShops.length === 0 && !loading">
           <p class="text-danger text-center">Nie znaleziono żadnych pasujących wyników</p>
         </div>
         <div class="col-lg-6 col-12">
@@ -34,7 +34,7 @@
             <the-spinner v-if="loading"/>
             <div class="col-12"
                  v-else
-                 v-for="(shop) in filterShops"
+                 v-for="(shop) in getShops"
                  :key="shop.id">
               <Shop :name="shop.name"
                     :address="shop.address"
@@ -63,51 +63,36 @@ export default {
   },
   data() {
     return {
-      loading: true,
+      loading: false,
       auth: '',
-      shops: [],
-      cities: [],
       city: '',
-      searchValue: '',
     };
   },
   async created() {
-    try {
-      const { data } = await this.axios.get('locals.json');
-      this.shops = data;
-      this.loading = false;
-      this.getCities(this.shops);
-    } catch (error) {
-      console.log(error);
-    }
+    this.loading = true;
+    await this.$store.dispatch('getShops');
+    this.loading = false;
+    this.cities = this.$store.dispatch('getCities');
     this.locatorButtonPressed();
   },
   computed: {
-    /* eslint-disable*/
-    filterShops: function() {
-      const keys = Object.keys(this.shops);
-      let shops = Object.values(this.shops);
-      shops.forEach((value,index) => {
-        shops[index]['id'] = keys[index];
-      });
-
-      if (this.searchValue === '' && this.city === '') {
-        // console.log('First', shops);
-        return shops;
-      }
-
-      shops = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.city.toString().toLowerCase()));
-      console.log(shops);
-      shops = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-
-      this.loading = true;
-      window.setTimeout(() => {
-        this.loading = false;
-      }, 100);
-
-      return shops;
+    getShops() {
+      return this.$store.getters.shops;
     },
-    /* eslint-enable */
+    getCities() {
+      return this.$store.getters.cities;
+    },
+    searchValue: {
+      get() {
+        return this.$store.getters.searchValue;
+      },
+      async set(value) {
+        this.loading = true;
+        await this.$store.commit('changeSearchValue', value);
+        await this.$store.dispatch('getShops');
+        this.loading = false;
+      },
+    },
   },
   methods: {
     onSubmit(event) {
@@ -129,16 +114,11 @@ export default {
     showDetails(id) {
       this.$router.push(`/sklep/${id}`);
     },
-    getCities(shops) {
-      const shopsList = (Object.values(shops));
-      for (let i = 0; i < shopsList.length; i += 1) {
-        if (!this.cities.includes(shopsList[i].city)) {
-          this.cities.push(shopsList[i].city);
-        }
-      }
-    },
-    changeCity(event) {
-      this.city = event.target.value;
+    async changeCity(event) {
+      this.loading = true;
+      await this.$store.commit('changeCity', event.target.value);
+      await this.$store.dispatch('getShops');
+      this.loading = false;
     },
   },
 };
