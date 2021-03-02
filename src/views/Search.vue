@@ -8,7 +8,7 @@
               <select class="form-control"
                       id="cities"
                       placeholder="Wybierz miasto"
-                      @input="changeCity">
+                      v-model="city">
                 <option value="">Wszystkie miasta</option>
                 <option v-for="city in getCities" :key="city.id">{{ city }}</option>
               </select>
@@ -65,14 +65,12 @@ export default {
     return {
       loading: false,
       auth: '',
-      city: '',
     };
   },
   async created() {
     this.loading = true;
     await this.$store.dispatch('getShops');
     this.loading = false;
-    this.cities = this.$store.dispatch('getCities');
     this.locatorButtonPressed();
   },
   computed: {
@@ -89,6 +87,17 @@ export default {
       async set(value) {
         this.loading = true;
         await this.$store.commit('changeSearchValue', value);
+        await this.$store.dispatch('getShops');
+        this.loading = false;
+      },
+    },
+    city: {
+      get() {
+        return this.$store.getters.city;
+      },
+      async set(value) {
+        this.loading = true;
+        await this.$store.commit('changeCity', value);
         await this.$store.dispatch('getShops');
         this.loading = false;
       },
@@ -113,12 +122,6 @@ export default {
     /* eslint-enable */
     showDetails(id) {
       this.$router.push(`/sklep/${id}`);
-    },
-    async changeCity(event) {
-      this.loading = true;
-      await this.$store.commit('changeCity', event.target.value);
-      await this.$store.dispatch('getShops');
-      this.loading = false;
     },
   },
 };

@@ -24,6 +24,7 @@ export default new Vuex.Store({
     shops: state => state.shops,
     cities: state => state.cities,
     searchValue: state => state.searchValue,
+    city: state => state.city,
   },
   mutations: {
     auth(state, payload) {
@@ -129,7 +130,7 @@ export default new Vuex.Store({
         console.log(error);
       }
     },
-    async getShops({ state, commit }) {
+    async getShops({ state, commit, dispatch }) {
       try {
         const { data } = await axios.get('locals.json');
         const keys = Object.keys(data);
@@ -138,21 +139,24 @@ export default new Vuex.Store({
           shops[index].id = keys[index];
         });
         state.shops = shops;
+        dispatch('getCities', shops);
 
         if (state.searchValue === '' && state.city === '') {
+          console.log(state.shops);
           return state.shops;
         }
 
         commit('filterByShopName');
         commit('filterByCity');
+        console.log(state.shops);
       } catch (error) {
         console.log(error);
       }
       return state.shops;
     },
-    getCities({ state }) {
+    getCities({ state }, shops) {
       const cities = [];
-      const shopsList = (Object.values(state.shops));
+      const shopsList = (Object.values(shops));
       for (let i = 0; i < shopsList.length; i += 1) {
         if (!cities.includes(shopsList[i].city)) {
           cities.push(shopsList[i].city);
