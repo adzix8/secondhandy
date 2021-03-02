@@ -16,7 +16,8 @@
                             :city="shop.city"
                             :card-allowed="shop.cardAllowed"
                             :stock="shop.stock"
-                            :days="shop.days" />
+                            :days="shop.days"
+                            :delivery-day="shop.deliveryDay" />
         </div>
       </div>
     </div>

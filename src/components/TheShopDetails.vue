@@ -10,7 +10,11 @@
     <div class="shop__info__container">
       <p class="shop__header">Informacje</p>
       <ul class="shop__info">
-        <li><i class="fas fa-cart-arrow-down"></i><span>dostawa za 3 dni</span></li>
+        <li v-if="nearDelivery !== null">
+          <i class="fas fa-cart-arrow-down"></i>
+          <span v-if="nearDelivery === 0">dzisiaj</span>
+          <span v-else>za {{ nearDelivery }} dni</span>
+        </li>
         <li><i class="fas fa-tag"></i><span>cena 30 zł/kg</span></li>
         <li v-if="cardAllowed"><i class="far fa-credit-card"></i><span>Płatność kartą</span></li>
       </ul>
@@ -85,6 +89,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    deliveryDay: {
+      type: Array,
+      default: () => [],
+    },
   },
   methods: {
     openingHours(day) {
@@ -97,6 +105,42 @@ export default {
   computed: {
     fullAddress() {
       return `${this.address}, ${this.city}`;
+    },
+    nearDelivery() {
+      if (this.deliveryDay.length === 0) {
+        return null;
+      }
+      const today = new Date().getDay();
+      const days = [
+        'niedziela',
+        'poniedziałek',
+        'wtorek',
+        'środa',
+        'czwartek',
+        'piątek',
+        'sobota',
+      ];
+      const delivery = [];
+      this.deliveryDay.forEach((element, index) => {
+        delivery[index] = days.indexOf(element);
+      });
+      delivery.forEach((element, index) => {
+        if (element - today < 0) {
+          delivery[index] = element - today + 7;
+        } else {
+          delivery[index] = element - today;
+        }
+      });
+      const near = delivery.reduce((a, b) => {
+        const aDiff = Math.abs(a - today);
+        const bDiff = Math.abs(b - today);
+
+        if (aDiff === bDiff) {
+          return a < b ? a : b;
+        }
+        return bDiff < aDiff ? b : a;
+      });
+      return near;
     },
   },
 };

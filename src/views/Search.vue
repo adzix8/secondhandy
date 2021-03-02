@@ -42,6 +42,7 @@
                     :card-allowed="shop.cardAllowed"
                     :stock="shop.stock"
                     :shop-node="shop.id"
+                    :delivery-day="shop.deliveryDay"
                     @click="showDetails(shop.id)" />
             </div>
           </div>
