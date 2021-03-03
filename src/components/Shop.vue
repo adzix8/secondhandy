@@ -119,6 +119,8 @@ export default {
       const today = new Date().getDay();
       const day = days[today];
       const price = this.days[day].priceList;
+
+      if (!price) return null;
       switch (price.method) {
         case 'sztuka':
           price.method = 'szt.';
@@ -126,8 +128,6 @@ export default {
         default:
           price.method = 'kg';
       }
-
-      if (!price) return null;
       return `${price.price} zł / ${price.method}`;
     },
   },
