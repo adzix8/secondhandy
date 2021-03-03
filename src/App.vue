@@ -221,4 +221,9 @@ a {
   font-size: 1.25rem;
   margin-top: .75rem;
 }
+.info--alert {
+  color: #ff0000;
+  font-size: .75rem;
+  line-height: .9rem;
+}
 </style>

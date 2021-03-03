@@ -22,7 +22,7 @@
         </li>
         <li v-if="cardAllowed"><i class="far fa-credit-card"></i></li>
       </ul>
-      <ul class="item__list-2">
+      <ul class="item__list-2" v-if="stock.length > 0">
         <li v-if="stock.includes('odzież męska')"><i class="fas fa-male"></i></li>
         <li v-if="stock.includes('odzież damska')"><i class="fas fa-female"></i></li>
         <li v-if="stock.includes('odzież dziecięca')"><i class="fas fa-baby"></i></li>
@@ -31,6 +31,7 @@
         <li v-if="stock.includes('pościel')"><i class="fas fa-bed"></i></li>
         <li v-if="stock.includes('galanteria')"><i class="fas fa-shopping-bag"></i></li>
       </ul>
+      <p class="info--alert" v-else>Brak informacji o asortymencie</p>
     </div>
   </div>
 </template>

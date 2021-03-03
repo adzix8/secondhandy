@@ -45,7 +45,7 @@
           <i class="fas fa-shopping-bag"></i><span>Galanteria</span>
         </li>
       </ul>
-      <p class="shop__alert" v-else>Brak informacji o asortymencie</p>
+      <p class="info--alert" v-else>Brak informacji o asortymencie</p>
     </div>
     <div v-if="days" class="shop__opening-hours">
       <p class="shop__header">Godziny otwarcia</p>
@@ -270,12 +270,6 @@ export default {
 
   .shop__close {
     color: #ff0000;
-  }
-
-  .shop__alert {
-    color: #ff0000;
-    font-size: .75rem;
-    line-height: .9rem;
   }
 
   .shop__info, .shop__stock {
