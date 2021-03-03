@@ -16,7 +16,10 @@
           <span v-if="nearDelivery === 0">dzisiaj</span>
           <span v-else>za {{ nearDelivery }} dni</span>
         </li>
-        <li><i class="fas fa-tag"></i><span>30 zł/kg</span></li>
+        <li v-if="getPriceToday">
+          <i class="fas fa-tag"></i>
+          <span>{{ getPriceToday }}</span>
+        </li>
         <li v-if="cardAllowed"><i class="far fa-credit-card"></i></li>
       </ul>
       <ul class="item__list-2">
@@ -55,6 +58,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    days: {
+      type: Object,
+      default: () => {},
+    },
     shopNode: {
       type: String,
     },
@@ -68,9 +75,7 @@ export default {
       return `${this.address}, ${this.city}`;
     },
     nearDelivery() {
-      if (this.deliveryDay.length === 0) {
-        return null;
-      }
+      if (this.deliveryDay.length === 0) return null;
       const today = new Date().getDay();
       const days = [
         'niedziela',
@@ -96,12 +101,34 @@ export default {
         const aDiff = Math.abs(a - today);
         const bDiff = Math.abs(b - today);
 
-        if (aDiff === bDiff) {
-          return a < b ? a : b;
-        }
+        if (aDiff === bDiff) return a < b ? a : b;
         return bDiff < aDiff ? b : a;
       });
       return near;
+    },
+    getPriceToday() {
+      const days = [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+      ];
+      const today = new Date().getDay();
+      const day = days[today];
+      const price = this.days[day].priceList;
+      switch (price.method) {
+        case 'sztuka':
+          price.method = 'szt.';
+          break;
+        default:
+          price.method = 'kg';
+      }
+
+      if (!price) return null;
+      return `${price.price} zł / ${price.method}`;
     },
   },
   methods: {
@@ -238,9 +265,15 @@ export default {
     grid-area: list-1;
     justify-self: center;
 
+    li {
+      margin-right: .5rem;
+    }
+
     @media #{$desktop} {
       li {
-        display: block;
+        line-height: 1rem;
+        display: flex;
+        margin-bottom: .5rem;
       }
     }
   }

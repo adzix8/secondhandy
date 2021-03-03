@@ -41,6 +41,7 @@
                     :city="shop.city"
                     :card-allowed="shop.cardAllowed"
                     :stock="shop.stock"
+                    :days="shop.days"
                     :shop-node="shop.id"
                     :delivery-day="shop.deliveryDay"
                     @click="showDetails(shop.id)" />

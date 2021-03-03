@@ -15,7 +15,10 @@
           <span v-if="nearDelivery === 0">dzisiaj</span>
           <span v-else>za {{ nearDelivery }} dni</span>
         </li>
-        <li><i class="fas fa-tag"></i><span>cena 30 zł/kg</span></li>
+        <li v-if="getPriceToday">
+          <i class="fas fa-tag"></i>
+          <span>{{ getPriceToday }}</span>
+        </li>
         <li v-if="cardAllowed"><i class="far fa-credit-card"></i><span>Płatność kartą</span></li>
       </ul>
     </div>
@@ -107,9 +110,7 @@ export default {
       return `${this.address}, ${this.city}`;
     },
     nearDelivery() {
-      if (this.deliveryDay.length === 0) {
-        return null;
-      }
+      if (this.deliveryDay.length === 0) return null;
       const today = new Date().getDay();
       const days = [
         'niedziela',
@@ -135,12 +136,27 @@ export default {
         const aDiff = Math.abs(a - today);
         const bDiff = Math.abs(b - today);
 
-        if (aDiff === bDiff) {
-          return a < b ? a : b;
-        }
+        if (aDiff === bDiff) return a < b ? a : b;
         return bDiff < aDiff ? b : a;
       });
       return near;
+    },
+    getPriceToday() {
+      const days = [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+      ];
+      const today = new Date().getDay();
+      const day = days[today];
+      const price = this.days[day].priceList;
+
+      if (!price) return null;
+      return `${price.price} zł / ${price.method}`;
     },
   },
 };
