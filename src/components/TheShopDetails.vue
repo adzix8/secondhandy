@@ -4,7 +4,8 @@
     <div class="shop__details">
       <h2 class="shop__title">{{name}}</h2>
       <p class="shop__address">{{ fullAddress }}</p>
-      <span class="shop__open">Otwarte</span>
+      <span class="item__open" v-if="openOrClose === 'Otwarte'">{{ openOrClose }}</span>
+      <span class="item__close" v-else>{{ openOrClose }}</span>
       <span class="shop__location"><i class="fas fa-location-arrow"></i>1.8 km</span>
     </div>
     <div class="shop__info__container">
@@ -68,6 +69,19 @@
 <script>
 export default {
   name: 'TheShopDetails',
+  data() {
+    return {
+      listDays: [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+      ],
+    };
+  },
   props: {
     name: {
       type: String,
@@ -142,21 +156,48 @@ export default {
       return near;
     },
     getPriceToday() {
-      const days = [
-        'sunday',
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-      ];
       const today = new Date().getDay();
-      const day = days[today];
+      const day = this.listDays[today];
       const price = this.days[day].priceList;
 
       if (!price) return null;
       return `${price.price} zł / ${price.method}`;
+    },
+    openOrClose() {
+      let text = null;
+      const now = new Date();
+      const today = now.getDay();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      let shopOpen = this.days[this.listDays[today]].open;
+      let shopClose = this.days[this.listDays[today]].close;
+      if (shopOpen !== '' && shopClose !== '') {
+        shopOpen = shopOpen.split(':');
+        shopClose = shopClose.split(':');
+        const shopOpenHours = parseInt(shopOpen[0], 10);
+        const shopOpenMinutes = parseInt(shopOpen[1], 10);
+        const shopCloseHours = parseInt(shopClose[0], 10);
+        const shopCloseMinutes = parseInt(shopClose[1], 10);
+        if (hours > shopOpenHours && hours < shopCloseHours) {
+          text = 'Otwarte';
+        } else if (hours === shopOpenHours) {
+          if (minutes >= shopOpenMinutes) {
+            text = 'Otwarte';
+          } else {
+            text = 'Zamknięte';
+          }
+        } else if (hours === shopCloseHours) {
+          if (minutes <= shopCloseMinutes) {
+            text = 'Otwarte';
+          } else {
+            text = 'Zamknięte';
+          }
+        } else {
+          text = 'Zamknięte';
+        }
+      }
+
+      return text;
     },
   },
 };
