@@ -89,7 +89,7 @@ export default {
         password: this.password,
         returnSecureToken: true,
       });
-      this.$router.push({ name: 'add-shop' });
+      await this.$router.push({ name: 'add-shop' });
     },
   },
 };
