@@ -7,15 +7,23 @@
         <span class="item__address">{{ fullAddress }}</span>
       </div>
       <div class="item__col--right">
-        <span class="item__open">Otwarte</span>
+        <span class="item__open" v-if="openOrClose === 'Otwarte'">{{ openOrClose }}</span>
+        <span class="item__close" v-else>{{ openOrClose }}</span>
         <span class="item__location"><i class="fas fa-location-arrow"></i>1.8 km</span>
       </div>
       <ul class="item__list-1">
-        <li><i class="fas fa-cart-arrow-down"></i><span>za 3dni</span></li>
-        <li><i class="fas fa-tag"></i><span>30 zł/kg</span></li>
+        <li v-if="nearDelivery !== null">
+          <i class="fas fa-cart-arrow-down"></i>
+          <span v-if="nearDelivery === 0">dzisiaj</span>
+          <span v-else>za {{ nearDelivery }} dni</span>
+        </li>
+        <li v-if="getPriceToday">
+          <i class="fas fa-tag"></i>
+          <span>{{ getPriceToday }}</span>
+        </li>
         <li v-if="cardAllowed"><i class="far fa-credit-card"></i></li>
       </ul>
-      <ul class="item__list-2">
+      <ul class="item__list-2" v-if="stock.length > 0">
         <li v-if="stock.includes('odzież męska')"><i class="fas fa-male"></i></li>
         <li v-if="stock.includes('odzież damska')"><i class="fas fa-female"></i></li>
         <li v-if="stock.includes('odzież dziecięca')"><i class="fas fa-baby"></i></li>
@@ -24,6 +32,7 @@
         <li v-if="stock.includes('pościel')"><i class="fas fa-bed"></i></li>
         <li v-if="stock.includes('galanteria')"><i class="fas fa-shopping-bag"></i></li>
       </ul>
+      <p class="info--alert" v-else>Brak informacji o asortymencie</p>
     </div>
   </div>
 </template>
@@ -31,6 +40,19 @@
 <script>
 export default {
   name: 'Shop',
+  data() {
+    return {
+      listDays: [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+      ],
+    };
+  },
   props: {
     name: {
       type: String,
@@ -51,13 +73,104 @@ export default {
       type: Array,
       default: () => [],
     },
+    days: {
+      type: Object,
+      default: () => {},
+    },
     shopNode: {
       type: String,
+    },
+    deliveryDay: {
+      type: Array,
+      default: () => [],
     },
   },
   computed: {
     fullAddress() {
       return `${this.address}, ${this.city}`;
+    },
+    nearDelivery() {
+      if (this.deliveryDay.length === 0) return null;
+      const today = new Date().getDay();
+      const days = [
+        'niedziela',
+        'poniedziałek',
+        'wtorek',
+        'środa',
+        'czwartek',
+        'piątek',
+        'sobota',
+      ];
+      const delivery = [];
+      this.deliveryDay.forEach((element, index) => {
+        delivery[index] = days.indexOf(element);
+      });
+      delivery.forEach((element, index) => {
+        if (element - today < 0) {
+          delivery[index] = element - today + 7;
+        } else {
+          delivery[index] = element - today;
+        }
+      });
+      const near = delivery.reduce((a, b) => {
+        const aDiff = Math.abs(a - today);
+        const bDiff = Math.abs(b - today);
+
+        if (aDiff === bDiff) return a < b ? a : b;
+        return bDiff < aDiff ? b : a;
+      });
+      return near;
+    },
+    getPriceToday() {
+      const today = new Date().getDay();
+      const day = this.listDays[today];
+      const price = this.days[day].priceList;
+
+      if (!price) return null;
+      switch (price.method) {
+        case 'sztuka':
+          price.method = 'szt.';
+          break;
+        default:
+          price.method = 'kg';
+      }
+      return `${price.price} zł / ${price.method}`;
+    },
+    openOrClose() {
+      let text = null;
+      const now = new Date();
+      const today = now.getDay();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      let shopOpen = this.days[this.listDays[today]].open;
+      let shopClose = this.days[this.listDays[today]].close;
+      if (shopOpen !== '' && shopClose !== '') {
+        shopOpen = shopOpen.split(':');
+        shopClose = shopClose.split(':');
+        const shopOpenHours = parseInt(shopOpen[0], 10);
+        const shopOpenMinutes = parseInt(shopOpen[1], 10);
+        const shopCloseHours = parseInt(shopClose[0], 10);
+        const shopCloseMinutes = parseInt(shopClose[1], 10);
+        if (hours > shopOpenHours && hours < shopCloseHours) {
+          text = 'Otwarte';
+        } else if (hours === shopOpenHours) {
+          if (minutes >= shopOpenMinutes) {
+            text = 'Otwarte';
+          } else {
+            text = 'Zamknięte';
+          }
+        } else if (hours === shopCloseHours) {
+          if (minutes <= shopCloseMinutes) {
+            text = 'Otwarte';
+          } else {
+            text = 'Zamknięte';
+          }
+        } else {
+          text = 'Zamknięte';
+        }
+      }
+
+      return text;
     },
   },
   methods: {
@@ -84,6 +197,14 @@ export default {
     flex-wrap: wrap;
     justify-content: space-between;
     cursor: pointer;
+    opacity: 0;
+    -webkit-transform: translateY(1rem);
+    -moz-transform: translateY(1rem);
+    -ms-transform: translateY(1rem);
+    -o-transform: translateY(1rem);
+    transform: translateY(1rem);
+    animation: showItem .4s ease-in-out;
+    animation-fill-mode: forwards;
   }
 
   .item__img {
@@ -186,9 +307,15 @@ export default {
     grid-area: list-1;
     justify-self: center;
 
+    li {
+      margin-right: .5rem;
+    }
+
     @media #{$desktop} {
       li {
-        display: block;
+        line-height: 1rem;
+        display: flex;
+        margin-bottom: .5rem;
       }
     }
   }
@@ -204,5 +331,24 @@ export default {
 
   .item__col--right {
     grid-area: location;
+  }
+
+  @keyframes showItem {
+    from {
+      opacity: 0;
+      -webkit-transform: translateY(1rem);
+      -moz-transform: translateY(1rem);
+      -ms-transform: translateY(1rem);
+      -o-transform: translateY(1rem);
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      -webkit-transform: translateY(0);
+      -moz-transform: translateY(0);
+      -ms-transform: translateY(0);
+      -o-transform: translateY(0);
+      transform: translateY(0);
+    }
   }
 </style>

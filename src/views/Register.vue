@@ -17,8 +17,12 @@
                 <label class="form__label" for="email">E-mail</label>
                 <span class="form__input--error"
                       v-if="!$v.email.$dirty ? null : !$v.email.required">
-            E-mail jest wymagany.
-          </span>
+                  E-mail jest wymagany.
+                </span>
+                <span class="form__input--error"
+                      v-if="!$v.email.$dirty ? null : !$v.email.email">
+                  Niepoprawny email.
+                </span>
               </div>
               <div class="form-group mb-3">
                 <input type="password"
@@ -28,6 +32,14 @@
                        :class="{ 'form__valid': !$v.password.$dirty ? null : !$v.email.$error,
                  'form__invalid': $v.password.$error }">
                 <label class="form__label" for="password">Hasło</label>
+                <span class="form__input--error"
+                      v-if="!$v.password.$dirty ? null : !$v.password.required">
+                  E-mail jest wymagany.
+                </span>
+                <span class="form__input--error"
+                      v-if="!$v.password.minLength">
+                  Hasło powinno zawierać min. 8 znaków.
+                </span>
               </div>
               <button type="submit" class="btn btn--primary m-0" @click="onSubmit">
                 <i class="fas fa-sign-in-alt margin-right"></i>Zarejestruj
@@ -41,7 +53,7 @@
 </template>
 
 <script>
-import { required, minLength } from 'vuelidate/lib/validators';
+import { required, minLength, email } from 'vuelidate/lib/validators';
 
 export default {
   name: 'Register',
@@ -54,6 +66,7 @@ export default {
   validations: {
     email: {
       required,
+      email,
     },
     password: {
       required,
@@ -63,12 +76,15 @@ export default {
   methods: {
     async onSubmit(event) {
       event.preventDefault();
-      await this.$store.dispatch('register', {
-        email: this.email,
-        password: this.password,
-        returnSecureToken: true,
-      });
-      this.$router.push({ name: 'add-shop' });
+      this.$v.$touch();
+      if (!this.$v.$invalid) {
+        await this.$store.dispatch('register', {
+          email: this.email,
+          password: this.password,
+          returnSecureToken: true,
+        });
+        await this.$router.push({ name: 'add-shop' });
+      }
     },
   },
 };

@@ -2,6 +2,9 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
 import authAxios from './auth-axios';
+/* eslint-disable */
+import router from './router/index';
+/* eslint-enable */
 
 Vue.use(Vuex);
 
@@ -11,9 +14,17 @@ export default new Vuex.Store({
   state: {
     token: null,
     userId: null,
+    shops: [],
+    cities: [],
+    city: '',
+    searchValue: '',
   },
   getters: {
     isAuth: state => state.token !== null,
+    shops: state => state.shops,
+    cities: state => state.cities,
+    searchValue: state => state.searchValue,
+    city: state => state.city,
   },
   mutations: {
     auth(state, payload) {
@@ -23,6 +34,22 @@ export default new Vuex.Store({
     clearAuth(state) {
       state.token = null;
       state.userId = null;
+    },
+    changeSearchValue(state, value) {
+      state.searchValue = value;
+    },
+    filterByShopName(state) {
+      /* eslint-disable */
+      state.shops = state.shops.filter(shop => shop.name.toString().toLowerCase().includes(state.searchValue.toString().toLowerCase()));
+      /* eslint-enable */
+    },
+    changeCity(state, city) {
+      state.city = city;
+    },
+    filterByCity(state) {
+      /* eslint-disable */
+      state.shops = state.shops.filter(shop => shop.city.toString().toLowerCase().includes(state.city.toString().toLowerCase()));
+      /* eslint-enable */
     },
   },
   actions: {
@@ -37,7 +64,7 @@ export default new Vuex.Store({
         console.log(error);
       }
     },
-    async login({ commit }, payload) {
+    async login({ commit, dispatch }, payload) {
       try {
         const response = await authAxios.post(`accounts:signInWithPassword?key=${apiKey}`, payload);
         commit('auth', {
@@ -51,6 +78,10 @@ export default new Vuex.Store({
         localStorage.setItem('userId', response.data.localId);
         localStorage.setItem('expires', endDate);
         localStorage.setItem('isAuth', isAuth);
+
+        setTimeout(() => {
+          dispatch('logout');
+        }, response.data.expiresIn * 1000);
       } catch (error) {
         console.log(error);
       }
@@ -61,15 +92,15 @@ export default new Vuex.Store({
       localStorage.removeItem('userId');
       localStorage.removeItem('expires');
       localStorage.removeItem('isAuth');
-      // this.$router.push({ name: 'home' });
+      router.push({ name: 'home' });
     },
-    autoLogin({ commit }) {
+    autoLogin({ commit, dispatch }) {
       const token = localStorage.getItem('token');
       const userId = localStorage.getItem('userId');
-      if (!token && !userId) {
+      if (!token || !userId) {
         return;
       }
-      const expirationDate = localStorage.getItem('expires');
+      const expirationDate = new Date(localStorage.getItem('expires'));
       const now = new Date();
       if (now >= expirationDate) {
         localStorage.removeItem('token');
@@ -83,6 +114,10 @@ export default new Vuex.Store({
         token,
         userId,
       });
+      // console.log('Pozostało sekund', expirationDate.getTime() - now.getTime());
+      setTimeout(() => {
+        dispatch('logout');
+      }, (expirationDate.getTime() - now.getTime()));
     },
     async addShop({ state }, payload) {
       if (state.userId === null) {
@@ -94,6 +129,41 @@ export default new Vuex.Store({
       } catch (error) {
         console.log(error);
       }
+    },
+    async getShops({ state, commit, dispatch }) {
+      try {
+        const { data } = await axios.get('locals.json');
+        const keys = Object.keys(data);
+        const shops = Object.values(data);
+        shops.forEach((value, index) => {
+          shops[index].id = keys[index];
+        });
+        state.shops = shops;
+        dispatch('getCities', shops);
+
+        if (state.searchValue === '' && state.city === '') {
+          console.log(state.shops);
+          return state.shops;
+        }
+
+        commit('filterByShopName');
+        commit('filterByCity');
+        console.log(state.shops);
+      } catch (error) {
+        console.log(error);
+      }
+      return state.shops;
+    },
+    getCities({ state }, shops) {
+      const cities = [];
+      const shopsList = (Object.values(shops));
+      for (let i = 0; i < shopsList.length; i += 1) {
+        if (!cities.includes(shopsList[i].city)) {
+          cities.push(shopsList[i].city);
+        }
+      }
+      state.cities = cities;
+      return state.cities;
     },
   },
 });

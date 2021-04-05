@@ -3,12 +3,21 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2 col-12 justify-center-section">
-          <form class="form__height--small" @submit="onSubmit">
+          <form @submit="onSubmit">
+            <div class="form-group mb-2">
+              <select class="form-control"
+                      id="cities"
+                      placeholder="Wybierz miasto"
+                      v-model="city">
+                <option value="">Wszystkie miasta</option>
+                <option v-for="city in getCities" :key="city.id">{{ city }}</option>
+              </select>
+            </div>
             <div class="form-group">
                 <i class="fas fa-search fa-right"></i>
                 <input type="text"
                        class="form-control control--primary search-control"
-                       placeholder="Podaj nazwę miasta"
+                       placeholder="Wpisz nazwę secondhandu"
                        v-model="searchValue">
             </div>
           </form>
@@ -17,7 +26,7 @@
     </div>
     <div class="container">
       <div class="row">
-        <div class="col-12" v-if="filterShops.length === 0 && !loading">
+        <div class="col-12" v-if="getShops.length === 0 && !loading">
           <p class="text-danger text-center">Nie znaleziono żadnych pasujących wyników</p>
         </div>
         <div class="col-lg-6 col-12">
@@ -25,14 +34,16 @@
             <the-spinner v-if="loading"/>
             <div class="col-12"
                  v-else
-                 v-for="(shop) in filterShops"
+                 v-for="(shop) in getShops"
                  :key="shop.id">
               <Shop :name="shop.name"
                     :address="shop.address"
                     :city="shop.city"
                     :card-allowed="shop.cardAllowed"
                     :stock="shop.stock"
+                    :days="shop.days"
                     :shop-node="shop.id"
+                    :delivery-day="shop.deliveryDay"
                     @click="showDetails(shop.id)" />
             </div>
           </div>
@@ -54,51 +65,45 @@ export default {
   },
   data() {
     return {
-      loading: true,
+      loading: false,
       auth: '',
-      shops: [],
-      searchValue: '',
     };
   },
   async created() {
-    try {
-      const { data } = await this.axios.get('locals.json');
-      this.shops = data;
-      this.loading = false;
-    } catch (error) {
-      console.log(error);
-    }
+    this.loading = true;
+    await this.$store.dispatch('getShops');
+    this.loading = false;
     this.locatorButtonPressed();
   },
   computed: {
-    /* eslint-disable*/
-    filterShops: function() {
-      const keys = Object.keys(this.shops);
-      let shops = Object.values(this.shops);
-      shops.forEach((value,index) => {
-        shops[index]['id'] = keys[index];
-      });
-
-      if (this.searchValue === '') {
-        console.log('First', shops);
-        return shops;
-      }
-
-      const cities = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-      const names = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-
-      if (cities.length > 0 && names.length > 0) {
-        shops = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-        shops = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-      } else if (cities.length > 0) {
-        shops = shops.filter(shop => shop.city.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-      } else {
-        shops = shops.filter(shop => shop.name.toString().toLowerCase().includes(this.searchValue.toString().toLowerCase()));
-      }
-
-      return shops;
+    getShops() {
+      return this.$store.getters.shops;
     },
-    /* eslint-enable */
+    getCities() {
+      return this.$store.getters.cities;
+    },
+    searchValue: {
+      get() {
+        return this.$store.getters.searchValue;
+      },
+      async set(value) {
+        this.loading = true;
+        await this.$store.commit('changeSearchValue', value);
+        await this.$store.dispatch('getShops');
+        this.loading = false;
+      },
+    },
+    city: {
+      get() {
+        return this.$store.getters.city;
+      },
+      async set(value) {
+        this.loading = true;
+        await this.$store.commit('changeCity', value);
+        await this.$store.dispatch('getShops');
+        this.loading = false;
+      },
+    },
   },
   methods: {
     onSubmit(event) {

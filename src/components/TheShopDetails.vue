@@ -4,14 +4,22 @@
     <div class="shop__details">
       <h2 class="shop__title">{{name}}</h2>
       <p class="shop__address">{{ fullAddress }}</p>
-      <span class="shop__open">Otwarte</span>
+      <span class="item__open" v-if="openOrClose === 'Otwarte'">{{ openOrClose }}</span>
+      <span class="item__close" v-else>{{ openOrClose }}</span>
       <span class="shop__location"><i class="fas fa-location-arrow"></i>1.8 km</span>
     </div>
     <div class="shop__info__container">
       <p class="shop__header">Informacje</p>
       <ul class="shop__info">
-        <li><i class="fas fa-cart-arrow-down"></i><span>dostawa za 3 dni</span></li>
-        <li><i class="fas fa-tag"></i><span>cena 30 zł/kg</span></li>
+        <li v-if="nearDelivery !== null">
+          <i class="fas fa-cart-arrow-down"></i>
+          <span v-if="nearDelivery === 0">dzisiaj</span>
+          <span v-else>za {{ nearDelivery }} dni</span>
+        </li>
+        <li v-if="getPriceToday">
+          <i class="fas fa-tag"></i>
+          <span>{{ getPriceToday }}</span>
+        </li>
         <li v-if="cardAllowed"><i class="far fa-credit-card"></i><span>Płatność kartą</span></li>
       </ul>
     </div>
@@ -38,7 +46,7 @@
           <i class="fas fa-shopping-bag"></i><span>Galanteria</span>
         </li>
       </ul>
-      <p class="shop__alert" v-else>Brak informacji o asortymencie</p>
+      <p class="info--alert" v-else>Brak informacji o asortymencie</p>
     </div>
     <div v-if="days" class="shop__opening-hours">
       <p class="shop__header">Godziny otwarcia</p>
@@ -61,6 +69,19 @@
 <script>
 export default {
   name: 'TheShopDetails',
+  data() {
+    return {
+      listDays: [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+      ],
+    };
+  },
   props: {
     name: {
       type: String,
@@ -85,6 +106,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    deliveryDay: {
+      type: Array,
+      default: () => [],
+    },
   },
   methods: {
     openingHours(day) {
@@ -97,6 +122,82 @@ export default {
   computed: {
     fullAddress() {
       return `${this.address}, ${this.city}`;
+    },
+    nearDelivery() {
+      if (this.deliveryDay.length === 0) return null;
+      const today = new Date().getDay();
+      const days = [
+        'niedziela',
+        'poniedziałek',
+        'wtorek',
+        'środa',
+        'czwartek',
+        'piątek',
+        'sobota',
+      ];
+      const delivery = [];
+      this.deliveryDay.forEach((element, index) => {
+        delivery[index] = days.indexOf(element);
+      });
+      delivery.forEach((element, index) => {
+        if (element - today < 0) {
+          delivery[index] = element - today + 7;
+        } else {
+          delivery[index] = element - today;
+        }
+      });
+      const near = delivery.reduce((a, b) => {
+        const aDiff = Math.abs(a - today);
+        const bDiff = Math.abs(b - today);
+
+        if (aDiff === bDiff) return a < b ? a : b;
+        return bDiff < aDiff ? b : a;
+      });
+      return near;
+    },
+    getPriceToday() {
+      const today = new Date().getDay();
+      const day = this.listDays[today];
+      const price = this.days[day].priceList;
+
+      if (!price) return null;
+      return `${price.price} zł / ${price.method}`;
+    },
+    openOrClose() {
+      let text = null;
+      const now = new Date();
+      const today = now.getDay();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      let shopOpen = this.days[this.listDays[today]].open;
+      let shopClose = this.days[this.listDays[today]].close;
+      if (shopOpen !== '' && shopClose !== '') {
+        shopOpen = shopOpen.split(':');
+        shopClose = shopClose.split(':');
+        const shopOpenHours = parseInt(shopOpen[0], 10);
+        const shopOpenMinutes = parseInt(shopOpen[1], 10);
+        const shopCloseHours = parseInt(shopClose[0], 10);
+        const shopCloseMinutes = parseInt(shopClose[1], 10);
+        if (hours > shopOpenHours && hours < shopCloseHours) {
+          text = 'Otwarte';
+        } else if (hours === shopOpenHours) {
+          if (minutes >= shopOpenMinutes) {
+            text = 'Otwarte';
+          } else {
+            text = 'Zamknięte';
+          }
+        } else if (hours === shopCloseHours) {
+          if (minutes <= shopCloseMinutes) {
+            text = 'Otwarte';
+          } else {
+            text = 'Zamknięte';
+          }
+        } else {
+          text = 'Zamknięte';
+        }
+      }
+
+      return text;
     },
   },
 };
@@ -210,12 +311,6 @@ export default {
 
   .shop__close {
     color: #ff0000;
-  }
-
-  .shop__alert {
-    color: #ff0000;
-    font-size: .75rem;
-    line-height: .9rem;
   }
 
   .shop__info, .shop__stock {
