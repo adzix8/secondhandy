@@ -16,6 +16,7 @@ export default new Vuex.Store({
     userId: null,
     shops: [],
     cities: [],
+    filteredShops: [],
     city: '',
     searchValue: '',
   },
@@ -25,6 +26,7 @@ export default new Vuex.Store({
     cities: state => state.cities,
     searchValue: state => state.searchValue,
     city: state => state.city,
+    filteredShops: state => state.filteredShops,
   },
   mutations: {
     auth(state, payload) {
@@ -40,7 +42,7 @@ export default new Vuex.Store({
     },
     filterByShopName(state) {
       /* eslint-disable */
-      state.shops = state.shops.filter(shop => shop.name.toString().toLowerCase().includes(state.searchValue.toString().toLowerCase()));
+      state.filteredShops = state.filteredShops.filter(shop => shop.name.toString().toLowerCase().includes(state.searchValue.toString().toLowerCase()));
       /* eslint-enable */
     },
     changeCity(state, city) {
@@ -48,7 +50,7 @@ export default new Vuex.Store({
     },
     filterByCity(state) {
       /* eslint-disable */
-      state.shops = state.shops.filter(shop => shop.city.toString().toLowerCase().includes(state.city.toString().toLowerCase()));
+      state.filteredShops = state.filteredShops.filter(shop => shop.city.toString().toLowerCase().includes(state.city.toString().toLowerCase()));
       /* eslint-enable */
     },
   },
@@ -130,7 +132,8 @@ export default new Vuex.Store({
         console.log(error);
       }
     },
-    async getShops({ state, commit, dispatch }) {
+    async getShops({ state, dispatch }) {
+      console.log('Pobranie danych');
       try {
         const { data } = await axios.get('locals.json');
         const keys = Object.keys(data);
@@ -140,15 +143,7 @@ export default new Vuex.Store({
         });
         state.shops = shops;
         dispatch('getCities', shops);
-
-        if (state.searchValue === '' && state.city === '') {
-          console.log(state.shops);
-          return state.shops;
-        }
-
-        commit('filterByShopName');
-        commit('filterByCity');
-        console.log(state.shops);
+        dispatch('filterShops');
       } catch (error) {
         console.log(error);
       }
@@ -164,6 +159,19 @@ export default new Vuex.Store({
       }
       state.cities = cities;
       return state.cities;
+    },
+    async filterShops({ state, commit }) {
+      state.filteredShops = state.shops;
+      console.log('Filtrowanie');
+
+      if (state.searchValue === '' && state.city === '') {
+        return state.filteredShops;
+      }
+
+      commit('filterByShopName');
+      commit('filterByCity');
+
+      return state.filteredShops;
     },
   },
 });

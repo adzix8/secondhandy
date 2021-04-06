@@ -77,7 +77,7 @@ export default {
   },
   computed: {
     getShops() {
-      return this.$store.getters.shops;
+      return this.$store.getters.filteredShops;
     },
     getCities() {
       return this.$store.getters.cities;
@@ -89,7 +89,7 @@ export default {
       async set(value) {
         this.loading = true;
         await this.$store.commit('changeSearchValue', value);
-        await this.$store.dispatch('getShops');
+        await this.$store.dispatch('filterShops');
         this.loading = false;
       },
     },
@@ -100,7 +100,7 @@ export default {
       async set(value) {
         this.loading = true;
         await this.$store.commit('changeCity', value);
-        await this.$store.dispatch('getShops');
+        await this.$store.dispatch('filterShops');
         this.loading = false;
       },
     },

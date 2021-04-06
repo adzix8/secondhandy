@@ -32,7 +32,6 @@
         <li v-if="stock.includes('pościel')"><i class="fas fa-bed"></i></li>
         <li v-if="stock.includes('galanteria')"><i class="fas fa-shopping-bag"></i></li>
       </ul>
-      <p class="info--alert" v-else>Brak informacji o asortymencie</p>
     </div>
   </div>
 </template>

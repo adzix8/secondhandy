@@ -4,8 +4,8 @@
     <div class="shop__details">
       <h2 class="shop__title">{{name}}</h2>
       <p class="shop__address">{{ fullAddress }}</p>
-      <span class="item__open" v-if="openOrClose === 'Otwarte'">{{ openOrClose }}</span>
-      <span class="item__close" v-else>{{ openOrClose }}</span>
+      <span class="shop__open" v-if="openOrClose === 'Otwarte'">{{ openOrClose }}</span>
+      <span class="shop__close" v-else>{{ openOrClose }}</span>
       <span class="shop__location"><i class="fas fa-location-arrow"></i>1.8 km</span>
     </div>
     <div class="shop__info__container">
